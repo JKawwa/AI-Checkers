@@ -31,10 +31,14 @@ class TwoPlayerGameState:
         self.__parent = parent
         if parent:
             self.__max_turn = not parent.get_max_turn()
+            # this is not desirable when we are removing pieces,
+            # causes inconsistencies between board pieces & player pieces
             self.__player1 = parent.__player1
             self.__player2 = parent.__player2
         else:
             self.__max_turn = True
+            self.__player1 = player1
+            self.__player2 = player2
         
     def get_player1(self):
         """Gets the player who starts first.
@@ -59,6 +63,15 @@ class TwoPlayerGameState:
             bool: True for player 1's turn, False
         """
         return self.__max_turn
+
+    def get_current_player(self):
+        """
+
+        Returns:
+            Player: the player who's turn it is
+        """
+
+        return self.get_player1() if self.get_max_turn() else self.get_player2()
         
     def get_successors(self):
         """Generates a list of successors for the state.
@@ -67,6 +80,8 @@ class TwoPlayerGameState:
         Returns:
             List[TwoPlayerGameState]: The successor states.
         """
+
+        
         raise AIError("Must be implemented in child class!")  
     
     def get_hashable_state(self):

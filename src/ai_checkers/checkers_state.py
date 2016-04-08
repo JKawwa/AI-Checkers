@@ -16,16 +16,30 @@ class CheckersState(search_engine.TwoPlayerGameState):
     
     .. todo:: Implement base class methods.
     """
-    def __init__(self,action="START",parent=None,player1=None,player2=None):
-        
-        super().__init__(action = action, parent = parent, player1 = player1, player2 = player2)
-        
-        if parent:
-            parent_board = parent.get_board()
-            self.__board = copy.copy(parent_board)
+    def __init__(self,action="START",parent=None,player1=None,player2=None, board=None):
+
+
+        if board:
+            super().__init__(action = action, parent = parent,
+                                     player1 = board.get_player1(),
+                                     player2 = board.get_player2())
+
+            # workaround super setting players = parent players (causes board inconsistencies) 
+            self.__player1 = board.get_player1()
+            self.__player2 = board.get_player2()
             
+            self.__board = board
         else:
-            self.__board = Board(player1,player2)
+            super().__init__(action = action, parent = parent,
+                         player1 = player1, player2 = player2)
+
+            if parent:
+                parent_board = parent.get_board()
+                self.__board = copy.copy(parent_board)
+            
+            else:
+                self.__board = Board(player1,player2)            
+        
         
     def get_board(self):
         """Gets the :class:`Board` linked to the current CheckersState.
@@ -34,6 +48,7 @@ class CheckersState(search_engine.TwoPlayerGameState):
             Board: The board.
         """
         return self.__board
+
         
     def get_successors(self):
         """Generates a list of successors for the state.
@@ -41,7 +56,23 @@ class CheckersState(search_engine.TwoPlayerGameState):
         Returns:
             List[TwoPlayerGameState]: The successor states.
         """
-        raise search_engine.AIError("Method not implemented!")
+
+        succs = []
+        for piece in self.get_current_player().get_pieces():
+            (x_old, y_old) = piece.get_position().get_coord()
+            for (x, y) in piece.get_moves():
+                if self.get_board().is_in_bounds(x, y):
+                    print("move (", x, ", ", y, " )")
+                    board = Board(self.get_player1().get_controller(),
+                                  self.get_player2().get_controller(),
+                                  self.get_board())
+                    new_piece = board.get_pos(x_old, y_old).get_piece()
+                    if not new_piece:
+                        print("uh oh no new_piece")
+                    if board.move(new_piece, (x, y)):
+                        succs.append(CheckersState(parent=self,board=board))
+                    
+        return succs
     
     def get_hashable_state(self):
         """Provides a hashable object that uniquely defines the state.
@@ -49,13 +80,13 @@ class CheckersState(search_engine.TwoPlayerGameState):
         Returns:
             hashable: A hashable object.
         """
-        raise search_engine.AIError("Method not implemented!")
-    
+        return str(self.get_board())
+        
     def print_state(self):
         """Prints a string representation of the state.
         """
-        raise search_engine.AIError("Method not implemented!")
-    
+        print(self.get_board())
+        
     def get_utility_value(self):
         """Provides the utility value of the state.
     
@@ -73,7 +104,11 @@ class Board:
         controller2 (Optional[Controller]): The player that will start second (MIN).
         board (Optional[Board]): The board to copy the state from.
     """
-        
+
+    # might want to make different board sizes
+    width = 8
+    height = 8
+    
     def __init__(self, controller1=None, controller2=None, board=None):
         if board:
             self.__player1 = CheckersPlayer(board=self,player=board.get_player1())
@@ -87,8 +122,14 @@ class Board:
                     old_piece = old_pos.get_piece()
                     if old_piece:
                         is_player_1 = old_piece in board.get_player1().get_pieces()
-                        piece = Piece(player=self.__player1 if is_player_1 else self.__player2, piece=old_piece)
-                        row.append(Position(self,x,y,piece))
+                        position = Position(self,x,y)
+                        piece = Piece(player=self.__player1 if
+                                      is_player_1 else self.__player2,
+                                      direction=old_piece.get_direction(),
+                                      position=position,
+                                      piece=old_piece)
+                        position.set_piece(piece)
+                        row.append(position)
                     else:
                         row.append(Position(self,x,y))
                 self.__board.append(row)
@@ -103,11 +144,15 @@ class Board:
                 row = []
                 for y in range(8):
                     if (x<=2) and ((x+y)%2 == 0):
-                        piece = Piece(self.__player1)
-                        row.append(Position(self,x,y,piece))
+                        position = Position(self,x,y)
+                        piece = Piece(self.__player1, Piece.right, position)
+                        position.set_piece(piece)
+                        row.append(position)
                     elif (x>=5) and ((x+y)%2 == 0):
-                        piece = Piece(self.__player2)
-                        row.append(Position(self,x,y,piece))
+                        position = Position(self,x,y)
+                        piece = Piece(self.__player2, Piece.left, position)
+                        position.set_piece(piece)
+                        row.append(position)
                     else:
                         row.append(Position(self,x,y))
                 self.__board.append(row)
@@ -177,6 +222,9 @@ class Board:
             bool: Whether the game has ended.
         """
         return not self.player1.pieces or not self.player2.pieces
+
+    def is_in_bounds(self, x, y):
+        return x < self.width and x >= 0 and y < self.height and y >= 0
     
     def get_pos(self,x,y):
         """
@@ -189,6 +237,10 @@ class Board:
         Returns:
             Position: The position at the given board indices.
         """
+
+        if not self.is_in_bounds(x, y):
+            raise search_engine.AIError("out of bounds")
+        
         return self.__board[x][y]                
         
     def get_board(self):
@@ -199,8 +251,66 @@ class Board:
             List[List[Position]]: The board as a list of lists.
         """
         return self.__board
+
+    def move(self, piece, coordinate):
+        """
+        Move the piece to the Position indicated by the coordinate.
+        handles jump, and collisions
+
+        Note: if 2 double jumps are possible currently we select the first one we find, 
+        ignoring the second
+        Args:
+           piece[Piece]: piece to move
+           coordinate (x, y): destination
+
+        Return: 
+           true success / false failure
+        """
+        (x, y) = coordinate
         
-                    
+        if not self.is_in_bounds(x, y):
+            raise search_engine.AIError("out of bounds")
+
+        dest_piece = self.get_pos(x, y).get_piece()
+        if  dest_piece == None:
+            piece.set_position(self.get_pos(x, y))
+            return True
+        elif dest_piece.get_player() == piece.get_player():
+            return False # collision
+        else:
+            # enemy piece, remove it if we can jump over it
+
+            # find the jump destination
+            (x1, y1) = piece.get_position().get_coord()
+            (delta_x, delta_y) = (x - x1, y - y1)
+            (x_final, y_final) = (x + delta_x, y + delta_y)
+
+            if not self.is_in_bounds(x_final, y_final):
+                # can't jump over, so it behaves like a collision
+                return False
+            else:
+                print("removing a piece")
+                
+                # kill enemy and jump over
+                dest_piece.get_player().remove_piece(dest_piece)
+                piece.set_position(self.get_pos(x_final, y_final))
+                
+                # check for double jumps
+                for (x_double, y_double) in piece.get_moves():
+                    if self.is_in_bounds(x_double, y_double):
+                        double_piece = self.get_pos(x_double, y_double).get_piece()
+                        if (double_piece != None
+                            and double_piece.get_player() != piece.get_player()):
+                            # we can double jump, let move handle the jump
+                            if not self.move(piece, (x_double, y_double)):
+                                raise search_engine.AIError("Double jump failed")
+
+                            # quit after first double jump
+                            return True
+                        
+
+                return True
+        
     def print_board(self):
         """
         Prints the board onto the standard output.
@@ -245,6 +355,9 @@ class Position:
             Position: The piece inside the position.
         """
         return self.__piece
+
+    def clear(self):
+        self.__piece = None
         
     def set_piece(self,piece):
         """
@@ -256,6 +369,15 @@ class Position:
         if piece and piece.get_position() is not self:
             piece.set_position(self)
         self.__piece = piece
+
+    def get_coord(self):
+        """
+        
+        Returns:
+            a tuple (x, y) representing the position
+        """
+
+        return (self.__x, self.__y)
         
     def __str__(self):
         return str(self.__piece) if (self.__piece) else " "
@@ -267,14 +389,20 @@ class Piece:
     """A piece class. Used for define pieces on the checkers board.
     
     Args:
+        direction(int) : 0 for left, 1 for right
         player (CheckersPlayer): The player that the piece belongs to.
         position (Optional[Position]): The position that the piece is on.
         piece (Optional[Piece]): A piece to copy properties from.
     """
+
+    left = 0
+    right = 1
     
-    def __init__(self,player,position = None,piece = None):
+    def __init__(self, player, direction,
+                 position, piece = None):
         self.__player = player
         self.__position = None
+        self.__direction = direction
         if(piece):
             self.__is_king = piece.get_is_king();
         else:
@@ -282,6 +410,9 @@ class Piece:
         
         self.set_position(position)
         player.add_piece(self)
+
+    def get_direction(self):
+        return self.__direction
         
     def set_king(self):
         """
@@ -309,10 +440,13 @@ class Piece:
         if self.__position and self.__position is not position:
             self.__position.set_piece(None)
         
-        self.position = position
+        self.__position = position
         
         if self.__position:
             self.__position.set_piece(self)
+
+    def get_player(self):
+        return self.__player
             
     def get_position(self):
         """
@@ -334,6 +468,25 @@ class Piece:
         .. note:: The value of the piece is 2 if it is a king and 1 otherwise.
         """
         return 2 if (self.is_king) else 1
+
+    def get_moves(self):
+        """
+        Returns:
+            List[(x, y)] of moves the piece could take (constraints not considered)
+        """
+
+        if (not self.get_position()):
+            print("Piece: Position is null .... ")
+
+        (x_loc, y_loc) = self.get_position().get_coord()
+        if self.get_is_king():
+            return [(x_loc-1, y_loc-1), (x_loc-1, y_loc+1),
+                    (x_loc+1, y_loc-1), (x_loc+1, y_loc+1)]
+        elif self.__direction == self.left:
+            return [(x_loc-1, y_loc-1), (x_loc-1, y_loc+1)]
+        else:
+            return [(x_loc+1, y_loc-1), (x_loc+1, y_loc+1)]
+            
     
     def __str__(self):
         final_str = 'o' if self.__player is self.__player.get_board().get_player1() else 'x'
@@ -397,13 +550,14 @@ class CheckersPlayer():
         
     def remove_piece(self,piece):
         """
-        Removes a piece from the player
+        Removes a piece from the player & the board
 
         Args:
             piece (Piece): The piece to add.
         """
         if piece in self.__pieces:
             self.__pieces.remove(piece)
+            piece.get_position().clear()
         
     def get_value(self):
         """
