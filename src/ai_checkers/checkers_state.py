@@ -290,7 +290,8 @@ class Board:
             (delta_x, delta_y) = (x - x1, y - y1)
             (x_final, y_final) = (x + delta_x, y + delta_y)
 
-            if not self.is_in_bounds(x_final, y_final):
+            if ((not self.is_in_bounds(x_final, y_final)) or
+                self.get_pos(x_final, y_final).get_piece()):
                 # can't jump over, so it behaves like a collision
                 return False
             else:
@@ -304,18 +305,15 @@ class Board:
                 for (x_double, y_double) in piece.get_moves():
                     if self.is_in_bounds(x_double, y_double):
                         double_piece = self.get_pos(x_double, y_double).get_piece()
-                        if (double_piece != None
-                            and double_piece.get_player() != piece.get_player()):
-                            # we can double jump, let move handle the jump
-                            if not self.move(piece, (x_double, y_double)):
-                                raise search_engine.AIError("Double jump failed")
-
+                        if (double_piece != None):
+                            # we may be able to double jump, try it
+                            self.move(piece, (x_double, y_double))
+                            
                             # quit after first double jump
                             return True
-                        
 
                 return True
-        
+     
     def print_board(self):
         """
         Prints the board onto the standard output.

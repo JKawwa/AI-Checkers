@@ -18,7 +18,7 @@ if __name__ == '__main__':
     state.get_board().print_board()
     
     curr = state
-    for i in range(6):
+    for i in range(15):
         print("successors ", i)
         for succ_state in curr.get_successors():
             succ_state.get_board().print_board()
