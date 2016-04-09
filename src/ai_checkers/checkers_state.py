@@ -89,7 +89,15 @@ class CheckersState(search_engine.TwoPlayerGameState):
         Returns:
             int: The utility value of the state.
         """
-        raise search_engine.AIError("Method not implemented!") 
+        return self.get_board().get_utility_value()
+    
+    def is_end_state(self):
+        """Determines if the game has ended.
+    
+        Returns:
+            bool: True if game ended. False otherwise.
+        """
+        return (self.get_board().get_winner() is not None)
         
 class Board:
     
@@ -190,7 +198,7 @@ class Board:
         Returns:
             Player: the player who's turn it is.
         """
-        return self.get_player1() if self.get_player_turn() else self.get_player2()
+        return self.__player1 if self.get_player_turn() else self.__player2
     
     def get_player_turn(self):
         """
@@ -217,18 +225,33 @@ class Board:
         Returns:
             int: The utility value.
         """
-        return self.player1.get_value() - self.player2.get_value()
+        if self.get_winner() == self.__player1:
+            return float(1)
+        elif self.get_winner() == self.__player2:
+            return float(-1)
+        else:
+            return float(self.__player1.get_value() - self.__player2.get_value())/24
         
-    def is_end_state(self):
+    def get_winner(self):
         """
-        Gets a boolean representing whether the game has ended.
+        Returns the winning player, or None if no player won yet.
 
         Returns:
-            bool: Whether the game has ended.
+            Player: The winning player.
         """
-        return not self.player1.pieces or not self.player2.pieces
+        return self.__player1 if not self.__player2.get_pieces() else self.__player2 if not self.__player1.get_pieces() else None
 
     def is_in_bounds(self, x, y):
+        """
+        Checks if the given position is within the bounds of the board.
+
+        Args:
+            x (int): The x coordinate.
+            y (int): The y coordinate.
+
+        Returns:
+            bool: Whether the coordinate is valid.
+        """
         return x < self.width and x >= 0 and y < self.height and y >= 0
     
     def get_pos(self,x,y):

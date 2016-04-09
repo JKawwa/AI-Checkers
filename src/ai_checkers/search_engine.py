@@ -121,6 +121,14 @@ class TwoPlayerGameState:
         """
         raise AIError("Must be implemented in child class!")  
 
+    def is_end_state(self):
+        """Determines if the game has ended.
+    
+        Returns:
+            bool: True if game ended. False otherwise.
+        """
+        return AIError("Must be implemented in child class!")
+
 class Controller:
     """A controller class. Used for both human and AI players.
      
