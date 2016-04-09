@@ -17,14 +17,14 @@ class TwoPlayerGameState:
     
     Args:
         parent (Optional[TwoPlayerGameState]): The predecessor state.
-        player1 (Optional[Player]): The player that will start first (MAX).
-        player2 (Optional[Player]): The player that will start second (MIN).
+        player1 (Optional[Controller]): The player that will start first (MAX).
+        player2 (Optional[Controller]): The player that will start second (MIN).
     
     .. note:: The state must be provided either a parent state, or player1 and player2.
     """
     
-    def __init__(self,action="START",parent=None,player1=None,player2=None):
-        if not (parent or (player1 and player2)):
+    def __init__(self,action="START",parent=None,controller1=None,controller2=None):
+        if not (parent or (controller1 and controller2)):
             raise AIError("Must provide \"parent\" or (\"player1\" and \"player2\")")
         
         self.__action = action
@@ -33,28 +33,30 @@ class TwoPlayerGameState:
             self.__max_turn = not parent.get_max_turn()
             # this is not desirable when we are removing pieces,
             # causes inconsistencies between board pieces & player pieces
-            self.__player1 = parent.__player1
-            self.__player2 = parent.__player2
+            # Jad: The states are meant to have controllers that remain static between states.
+            # Players get duplicated on each state, and then get connected to the controllers.
+            self.__controller1 = parent.__controller1
+            self.__controller2 = parent.__controller2
         else:
             self.__max_turn = True
-            self.__player1 = player1
-            self.__player2 = player2
+            self.__controller1 = controller1
+            self.__controller2 = controller2
         
-    def get_player1(self):
-        """Gets the player who starts first.
+    def get_controller1(self):
+        """Gets the controller who starts first.
     
         Returns:
-            Player: The player who starts first.
+            Player: The controller who starts first.
         """
-        return self.__player1
+        return self.__controller1
     
-    def get_player2(self):
-        """Gets the player who starts second.
+    def get_controller2(self):
+        """Gets the controller who starts second.
     
         Returns:
-            Player: The player who starts second.
+            Player: The controller who starts second.
         """
-        return self.__player2
+        return self.__controller2
         
     def get_max_turn(self):
         """Gets the player's turn.
@@ -80,7 +82,6 @@ class TwoPlayerGameState:
         Returns:
             List[TwoPlayerGameState]: The successor states.
         """
-
         
         raise AIError("Must be implemented in child class!")  
     

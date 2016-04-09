@@ -9,36 +9,32 @@ class CheckersState(search_engine.TwoPlayerGameState):
     
     Args:
         parent (Optional[CheckersState]): The predecessor state.
-        player1 (Optional[CheckersPlayer]): The player that will start first (MAX).
-        player2 (Optional[CheckersPlayer]): The player that will start second (MIN).
+        controller1 (Optional[Controller]): The controller for the player that will start first (MAX).
+        controller2 (Optional[Controller]): The controller for the player that will start second (MIN).
     
-    .. note:: The state must be provided either a parent state, or player1 and player2.
+    .. note:: The state must be provided either a parent state, or controller 1 and controller 2.
     
     .. todo:: Implement base class methods.
     """
-    def __init__(self,action="START",parent=None,player1=None,player2=None, board=None):
+    def __init__(self,action="START",parent=None,controller1=None,controller2=None, board=None):
 
 
         if board:
             super().__init__(action = action, parent = parent,
-                                     player1 = board.get_player1(),
-                                     player2 = board.get_player2())
-
-            # workaround super setting players = parent players (causes board inconsistencies) 
-            self.__player1 = board.get_player1()
-            self.__player2 = board.get_player2()
+                                     controller1 = board.get_player1(),
+                                     controller2 = board.get_player2())
             
             self.__board = board
         else:
             super().__init__(action = action, parent = parent,
-                         player1 = player1, player2 = player2)
+                         controller1 = controller1, controller2 = controller2)
 
             if parent:
                 parent_board = parent.get_board()
                 self.__board = copy.copy(parent_board)
             
             else:
-                self.__board = Board(player1,player2)            
+                self.__board = Board(controller1,controller2)            
         
         
     def get_board(self):
@@ -115,9 +111,9 @@ class Board:
             self.__player2 = CheckersPlayer(board=self,player=board.get_player2())
             self.__player_turn = board.get_player_turn()
             self.__board = []
-            for x in range(8):
+            for y in range(8):
                 row = []
-                for y in range(8):
+                for x in range(8):
                     old_pos = board.get_pos(x,y)
                     old_piece = old_pos.get_piece()
                     if old_piece:
@@ -140,15 +136,15 @@ class Board:
             controller2.set_is_max(False)
             self.__player_turn = self.__player1
             self.__board = []
-            for x in range(8):
+            for y in range(8):
                 row = []
-                for y in range(8):
-                    if (x<=2) and ((x+y)%2 == 0):
+                for x in range(8):
+                    if (y<=2) and ((x+y)%2 == 0):
                         position = Position(self,x,y)
                         piece = Piece(self.__player1, Piece.right, position)
                         position.set_piece(piece)
                         row.append(position)
-                    elif (x>=5) and ((x+y)%2 == 0):
+                    elif (y>=5) and ((x+y)%2 == 0):
                         position = Position(self,x,y)
                         piece = Piece(self.__player2, Piece.left, position)
                         position.set_piece(piece)
@@ -241,7 +237,7 @@ class Board:
         if not self.is_in_bounds(x, y):
             raise search_engine.AIError("out of bounds")
         
-        return self.__board[x][y]                
+        return self.__board[y][x]                
         
     def get_board(self):
         """
@@ -319,12 +315,12 @@ class Board:
                     
     def __str__(self):
         final_str = ''
-        for x in range(8,-1,-1):
-            for y in range(9):
-                if x == 0:
-                    final_str += ' '+str(y) if (y>0) else '  '
-                elif y == 0:
-                    final_str += ' '+chr(ord('A')+(x-1))
+        for y in range(8,-1,-1):
+            for x in range(9):
+                if y == 0:
+                    final_str += ' '+str(x) if (x>0) else '  '
+                elif x == 0:
+                    final_str += ' '+chr(ord('A')+(y-1))
                 else:
                     final_str += ' '+str(self.get_pos(x-1,y-1))
             final_str += '\n'
