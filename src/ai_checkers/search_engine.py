@@ -66,14 +66,14 @@ class TwoPlayerGameState:
         """
         return self.__max_turn
 
-    def get_current_player(self):
-        """
-
-        Returns:
-            Player: the player who's turn it is
-        """
-
-        return self.get_player1() if self.get_max_turn() else self.get_player2()
+#     def get_current_player(self):
+#         """
+# 
+#         Returns:
+#             Player: the player who's turn it is
+#         """
+# 
+#         return self.get_player1() if self.get_max_turn() else self.get_player2()
         
     def get_successors(self):
         """Generates a list of successors for the state.

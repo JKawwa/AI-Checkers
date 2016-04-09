@@ -31,7 +31,7 @@ class CheckersState(search_engine.TwoPlayerGameState):
 
             if parent:
                 parent_board = parent.get_board()
-                self.__board = copy.copy(parent_board)
+                self.__board = Board(board=parent_board)
             
             else:
                 self.__board = Board(controller1,controller2)            
@@ -54,20 +54,20 @@ class CheckersState(search_engine.TwoPlayerGameState):
         """
 
         succs = []
-        for piece in self.get_current_player().get_pieces():
+        for piece in self.get_board().get_current_player().get_pieces():
             (x_old, y_old) = piece.get_position().get_coord()
             for (x, y) in piece.get_moves():
                 if self.get_board().is_in_bounds(x, y):
-                    print("move (", x, ", ", y, " )")
-                    board = Board(self.get_player1().get_controller(),
-                                  self.get_player2().get_controller(),
-                                  self.get_board())
-                    new_piece = board.get_pos(x_old, y_old).get_piece()
+                    
+                    new_state = CheckersState(parent=self)
+                    
+                    new_piece = new_state.get_board().get_pos(x_old, y_old).get_piece()
+                    
                     if not new_piece:
                         print("uh oh no new_piece")
-                    if board.move(new_piece, (x, y)):
-                        succs.append(CheckersState(parent=self,board=board))
-                    
+                    if new_state.get_board().move(new_piece, (x, y)):
+                        print("move (", chr(ord('A') + (x_old)) ,  y_old + 1, " - ", chr(ord('A') + (x)), y+1, ")", sep="")
+                        succs.append(new_state)
         return succs
     
     def get_hashable_state(self):
@@ -109,7 +109,7 @@ class Board:
         if board:
             self.__player1 = CheckersPlayer(board=self,player=board.get_player1())
             self.__player2 = CheckersPlayer(board=self,player=board.get_player2())
-            self.__player_turn = board.get_player_turn()
+            self.__player_turn = not board.get_player_turn()
             self.__board = []
             for y in range(8):
                 row = []
@@ -141,12 +141,12 @@ class Board:
                 for x in range(8):
                     if (y<=2) and ((x+y)%2 == 0):
                         position = Position(self,x,y)
-                        piece = Piece(self.__player1, Piece.right, position)
+                        piece = Piece(self.__player1, Piece.up, position)
                         position.set_piece(piece)
                         row.append(position)
                     elif (y>=5) and ((x+y)%2 == 0):
                         position = Position(self,x,y)
-                        piece = Piece(self.__player2, Piece.left, position)
+                        piece = Piece(self.__player2, Piece.down, position)
                         position.set_piece(piece)
                         row.append(position)
                     else:
@@ -182,6 +182,15 @@ class Board:
             CheckersPlayer: The board's player 2.
         """
         return self.__player2
+    
+    def get_current_player(self):
+        """
+        Gets the player for the current turn.
+        
+        Returns:
+            Player: the player who's turn it is.
+        """
+        return self.get_player1() if self.get_player_turn() else self.get_player2()
     
     def get_player_turn(self):
         """
@@ -318,9 +327,9 @@ class Board:
         for y in range(8,-1,-1):
             for x in range(9):
                 if y == 0:
-                    final_str += ' '+str(x) if (x>0) else '  '
+                    final_str += ' '+chr(ord('A')+(x-1)) if (x>0) else '  '
                 elif x == 0:
-                    final_str += ' '+chr(ord('A')+(y-1))
+                    final_str += ' '+str(y)
                 else:
                     final_str += ' '+str(self.get_pos(x-1,y-1))
             final_str += '\n'
@@ -352,6 +361,9 @@ class Position:
         """
         return self.__piece
 
+    """
+    May need to be removed.
+    """
     def clear(self):
         self.__piece = None
         
@@ -368,11 +380,9 @@ class Position:
 
     def get_coord(self):
         """
-        
         Returns:
             a tuple (x, y) representing the position
         """
-
         return (self.__x, self.__y)
         
     def __str__(self):
@@ -391,8 +401,8 @@ class Piece:
         piece (Optional[Piece]): A piece to copy properties from.
     """
 
-    left = 0
-    right = 1
+    up = 0
+    down = 1
     
     def __init__(self, player, direction,
                  position, piece = None):
@@ -478,10 +488,10 @@ class Piece:
         if self.get_is_king():
             return [(x_loc-1, y_loc-1), (x_loc-1, y_loc+1),
                     (x_loc+1, y_loc-1), (x_loc+1, y_loc+1)]
-        elif self.__direction == self.left:
-            return [(x_loc-1, y_loc-1), (x_loc-1, y_loc+1)]
+        elif self.__direction == self.up:
+            return [(x_loc-1, y_loc+1), (x_loc+1, y_loc+1)]
         else:
-            return [(x_loc+1, y_loc-1), (x_loc+1, y_loc+1)]
+            return [(x_loc-1, y_loc-1), (x_loc+1, y_loc-1)]
             
     
     def __str__(self):

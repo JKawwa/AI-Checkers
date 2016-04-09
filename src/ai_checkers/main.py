@@ -16,12 +16,13 @@ if __name__ == '__main__':
     state = checkers_state.CheckersState(board=checkers_state.Board(controller1, controller2))
     
     state.get_board().print_board()
-    '''curr = state
+    
+    curr = state
     for i in range(6):
         print("successors ", i)
         for succ_state in curr.get_successors():
             succ_state.get_board().print_board()
             curr = succ_state
-            break'''
+            break
     
     pass
