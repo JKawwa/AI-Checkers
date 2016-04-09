@@ -9,6 +9,18 @@ class CheckersSearchEngine:
     .. todo:: Write up search algorithm.
     """
     
+    def DFMiniMax(self,n,player): 
+        '''n is the current state'''
+        '''//return Utility of state n given that //Player is MIN or MAX'''
+        if n.is_end_state():
+            return n.get_utility_value() #Return terminal states utility #//(V is specified as part of game)
+        #//Apply Player’s moves to get successor 
+        childList = n.get_successors()
+        if player == "Min":
+            return min(map(self.DFMiniMax,childList, ["Max"]*len(childList)))
+        else:
+            return max(map(self.DFMiniMax,childList, ["Min"]*len(childList)))  #over c in ChildList
+    
     def __init__(self):
         pass
         
@@ -169,3 +181,5 @@ class AIError(Exception):
         self.value = value
     def __str__(self):
         return repr(self.value) 
+                   
+
