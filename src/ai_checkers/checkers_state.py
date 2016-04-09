@@ -598,17 +598,3 @@ class CheckersPlayer():
             sum += piece.get_value()
         return sum
     
-# class HumanPlayer(CheckersPlayer):
-#     def __init__(self):
-#         super().__init__(is_ai = True)
-#         
-#     def play_move(self):
-#         pass
-#         #x = raw_input('What is your name?')
-#         
-# class AIPlayer(CheckersPlayer):
-#     def __init__(self):
-#         super().__init__(is_ai = False)
-#         
-#     def play_move(self):
-#         raise search_engine.AIError("Method not implemented!")

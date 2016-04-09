@@ -9,7 +9,7 @@ class SearchEngine:
     .. todo:: Write up search algorithm.
     """
     
-    def __init__(self,state,mode="AlphaBeta",max_depth=5):
+    def __init__(self,state=None,mode="AlphaBeta",max_depth=5):
         self.__state = state
         self.__max_depth = max_depth
         self.__mode = mode
@@ -23,6 +23,9 @@ class SearchEngine:
             next_state = self.startMiniMax()
         self.__state = next_state
         return next_state
+    
+    def set_state(self,state):
+        self.__state = state
     
     def get_num_explored(self):
         return len(self.__explored.keys())
@@ -84,7 +87,7 @@ class SearchEngine:
             float: The utility value of the state.
         
         """
-        self.__explored[state.get_hashable_state()] = state
+        #self.__explored[state.get_hashable_state()] = state
         
         if state in self.__explored.keys() or state.is_end_state() or depth >= self.__max_depth:
             return state.get_utility_value() #Return terminal state's utility value
@@ -116,7 +119,7 @@ class SearchEngine:
             float: The utility value of the state.
         
         """
-        self.__explored[state.get_hashable_state()] = state
+        #self.__explored[state.get_hashable_state()] = state
         
         if state.is_end_state() or depth >= self.__max_depth:
             #Return terminal state's utility value
@@ -308,4 +311,39 @@ class AIError(Exception):
     def __str__(self):
         return repr(self.value) 
                    
+class HumanController(Controller):
+    def __init__(self):
+        print("NOTE: Moves should be inputed in the form (Current Piece Position - Desired Position), e.g. Enter'(F2-E3)' to move piece F2 to E3\n NOTE: For double moves, use (Current Piece Position - Intermediate Position - Final Position), e.g. Enter'(F2-D4-F6)' to move piece F2 to D4 to F6")
+        super().__init__(is_ai = True)
+         
+    def play_move(self,state):
+        '''Asks for the next move, checks if the move is valid, 
+        Returns next state Or None to quit the game'''
+        #Keep asking for the next move until a valid move.
+        while(True):
+            nextMove = input("What is your next move? e.g. Enter'(F2-E3)'\n Enter 'Quit' to exit")
+            #Check if the move is valid
+            if nextMove == 'Quit':
+                return None
+            childList = self.__state.get_successors()
+            for c in childList:
+                if c.get_action == nextMove:
+                    return c
+            # Move not possible    
+            print("Invalid move!! Please try again...\n\n")
+         
+class AIController(Controller):
+    """
+    Utilizes AlphaBeta pruning to determine the next state
+    """
+    def __init__(self,mode="AlphaBeta",max_depth=5):
+        self.__engine = SearchEngine(mode = mode, max_depth = max_depth)
+        super().__init__(is_ai = False)
+         
+    def play_move(self,state):
+        #Get next (alphaBeta) successor up to depth d
+        
+        #for i in range(2):
+        self.__engine.set_state(state)
+        return self.__engine.getNextState()
 

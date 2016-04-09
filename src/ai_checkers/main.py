@@ -13,6 +13,7 @@ import checkers_state
 if __name__ == '__main__':
     controller1 = search_engine.Controller(True)
     controller2 = search_engine.Controller(False)
+    
     state = checkers_state.CheckersState(board=checkers_state.Board(controller1, controller2))
     
     state.get_board().print_board()
@@ -51,3 +52,27 @@ if __name__ == '__main__':
         pass
         
     print("Nodes explored: "+str(engine.get_num_explored()))
+    
+    
+    is_AI_vs_AI = input("Enter game mode number: 1- AI vs. AI \n                      2- Human vs. AI")
+    controller2 = search_engine.AIController()
+    if is_AI_vs_AI == '1':
+        controller1 = search_engine.AIController()
+    else:
+        controller1 = search_engine.HumanController()
+        
+    board=checkers_state.Board(controller1, controller2)
+    state = checkers_state.CheckersState(board)
+    
+    state.get_board().print_board()
+    
+    #for i in range(2):
+    print("AB successors ", 0)
+    control = controller1
+    while( not state.is_end_state()):
+        control.play_move(state)
+        state = checkers_state.CheckersState(board)
+        control = controller2
+        print("Nodes explored: "+str(engine.get_num_explored()))
+    
+    
