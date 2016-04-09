@@ -9,17 +9,36 @@ class CheckersSearchEngine:
     .. todo:: Write up search algorithm.
     """
     
-    def DFMiniMax(self,n,player): 
+    def DFMiniMax(self,n): 
         '''n is the current state'''
         '''//return Utility of state n given that //Player is MIN or MAX'''
         if n.is_end_state():
             return n.get_utility_value() #Return terminal states utility #//(V is specified as part of game)
         #//Apply Player’s moves to get successor 
+        is_max_turn = n.get_max_turn()
         childList = n.get_successors()
-        if player == "Min":
-            return min(map(self.DFMiniMax,childList, ["Max"]*len(childList)))
+        if not is_max_turn:
+            return min(map(self.DFMiniMax,childList))
         else:
-            return max(map(self.DFMiniMax,childList, ["Min"]*len(childList)))  #over c in ChildList
+            return max(map(self.DFMiniMax,childList))  #over c in ChildList
+        
+    def AlphaBeta(self,n,player,alpha,beta): #return Utility of state 
+        if n.is_end_state:
+            return n.get_utility_value() #Return terminal states utility 
+        is_max_turn = n.get_max_turn()
+        childList = n.get_successors()
+        if is_max_turn:
+            for c in childList:
+                alpha = max(alpha, self.AlphaBeta(c,alpha,beta)) 
+                if beta <= alpha:
+                    break 
+            return alpha
+        else: #Player == MIN 
+            for c in childList:
+                beta = min(beta, self.AlphaBeta(c,alpha,beta)) 
+                if beta <= alpha:
+                    break 
+            return beta
     
     def __init__(self):
         pass
