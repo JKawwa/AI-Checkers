@@ -86,6 +86,8 @@ class SearchEngine:
         """
         self.__explored[state.get_hashable_state()] = state
         
+        print("NextState (depth "+str(depth)+"):")
+        
         if state in self.__explored.keys() or state.is_end_state() or depth >= self.__max_depth:
             return state.get_utility_value() #Return terminal state's utility value
         
@@ -117,6 +119,8 @@ class SearchEngine:
         
         """
         self.__explored[state.get_hashable_state()] = state
+        
+        print("NextState (depth "+str(depth)+"):")
         
         if state.is_end_state() or depth >= self.__max_depth:
             #Return terminal state's utility value
@@ -195,6 +199,30 @@ class TwoPlayerGameState:
             bool: True for player 1's turn, False
         """
         return self.__max_turn
+    
+    def get_parent(self):
+        """Gets the state's parent.
+    
+        Returns:
+            TwoPlayerGameState: The parent state.
+        """
+        return self.__parent
+    
+    def get_action(self):
+        """Get's the state's action.
+        
+        Returns:
+            str: The state's action.
+        """
+        return self.__action
+    
+    def set_action(self,action):
+        """Sets the state's action.
+        
+        Args:
+            action (str): The state's action.
+        """
+        return self.__action
 
 #     def get_current_player(self):
 #         """
@@ -298,6 +326,15 @@ class Controller:
             is_max (bool): Whether the controller is a MAX Player.
         """
         self.__is_max = is_max
+        
+    def play_move(self,state):
+        """
+        Plays the controller's next move, based on the given state.
+        
+        Args:
+            state (TwoPlayerGameState): The next state to be played.
+        """
+        raise AIError("Must be implemented for child class!")
  
     def __str__(self):
         return ("Max" if self.get_is_max() else "Min") + ":" + ("AI" if self.get_is_ai() else "Human");

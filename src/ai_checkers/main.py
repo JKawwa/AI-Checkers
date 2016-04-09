@@ -13,18 +13,20 @@ import checkers_state
 if __name__ == '__main__':
     controller1 = search_engine.Controller(True)
     controller2 = search_engine.Controller(False)
-    state = checkers_state.CheckersState(board=checkers_state.Board(controller1, controller2))
+    board = checkers_state.Board(controller1, controller2)
+    state = checkers_state.CheckersState(board=board)
     
     state.get_board().print_board()
     
-#     #Get first successor up to depth d
-#     curr = state
-#     for i in range(15):
-#         print("successors ", i)
-#         for succ_state in curr.get_successors():
-#             succ_state.print_state()
-#             curr = succ_state
-#             break
+    #Get first successor up to depth d
+    curr = state
+    for i in range(15):
+        print("successors ", i)
+        successors = curr.get_successors()
+        for succ_state in successors:
+            succ_state.print_state()
+            curr = succ_state
+            break
 
     #Get next (alphaBeta) successor up to depth d
     engine = search_engine.SearchEngine(state, "AlphaBeta", 4)
