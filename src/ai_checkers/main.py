@@ -17,12 +17,37 @@ if __name__ == '__main__':
     
     state.get_board().print_board()
     
-    curr = state
-    for i in range(15):
-        print("successors ", i)
-        for succ_state in curr.get_successors():
-            succ_state.get_board().print_board()
-            curr = succ_state
-            break
-    
-    pass
+#     #Get first successor up to depth d
+#     curr = state
+#     for i in range(15):
+#         print("successors ", i)
+#         for succ_state in curr.get_successors():
+#             succ_state.print_state()
+#             curr = succ_state
+#             break
+
+    #Get next (alphaBeta) successor up to depth d
+    engine = search_engine.SearchEngine(state, "AlphaBeta", 4)
+    #for i in range(2):
+    print("AB successors ", 0)
+    next_state = engine.getNextState()
+    if next_state:
+        next_state.print_state()
+    else:
+        #break
+        pass
+        
+    print("Nodes explored: "+str(engine.get_num_explored()))
+        
+    #Get next (minimax) successor up to depth d
+    engine = search_engine.SearchEngine(state, "MiniMax", 4)
+    #for i in range(2):
+    print("MM successors ", 0)
+    next_state = engine.getNextState()
+    if next_state:
+        next_state.print_state()
+    else:
+        #break
+        pass
+        
+    print("Nodes explored: "+str(engine.get_num_explored()))

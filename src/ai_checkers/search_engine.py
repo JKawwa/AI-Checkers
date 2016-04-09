@@ -3,45 +3,144 @@
 
 import copy
 
-class CheckersSearchEngine:
+class SearchEngine:
     """The search engine class. Used to perform searches on states.
     
     .. todo:: Write up search algorithm.
     """
     
-    def DFMiniMax(self,n): 
-        '''n is the current state'''
-        '''//return Utility of state n given that //Player is MIN or MAX'''
-        if n.is_end_state():
-            return n.get_utility_value() #Return terminal states utility #//(V is specified as part of game)
-        #//Apply Player’s moves to get successor 
-        is_max_turn = n.get_max_turn()
-        childList = n.get_successors()
-        if not is_max_turn:
-            return min(map(self.DFMiniMax,childList))
-        else:
-            return max(map(self.DFMiniMax,childList))  #over c in ChildList
+    def __init__(self,state,mode="AlphaBeta",max_depth=5):
+        self.__state = state
+        self.__max_depth = max_depth
+        self.__mode = mode
+        self.__explored = dict()
+        self.__explored[state.get_hashable_state()] = state
         
-    def AlphaBeta(self,n,player,alpha,beta): #return Utility of state 
-        if n.is_end_state:
-            return n.get_utility_value() #Return terminal states utility 
-        is_max_turn = n.get_max_turn()
-        childList = n.get_successors()
+    def getNextState(self):
+        if self.__mode == "AlphaBeta":
+            next_state = self.startAlphaBeta()
+        else:
+            next_state = self.startMiniMax()
+        self.__state = next_state
+        return next_state
+    
+    def get_num_explored(self):
+        return len(self.__explored.keys())
+    
+    def startMiniMax(self):
+        
+        is_max_turn = self.__state.get_max_turn()
+        childList = self.__state.get_successors()
+        
+        choice = (None,float("-inf"))
+        
+        for c in childList:
+            val = self.miniMax(c)
+            if is_max_turn:
+                if val > choice[1]:
+                    choice = (c,val)
+            else:
+                if val < choice[1]:
+                    choice = (c,val)
+                
+        print("Utility: "+str(choice[1]))
+                
+        return choice[0]
+        
+    def startAlphaBeta(self):
+        alpha = float("-inf")
+        beta = float("inf")
+        
+        is_max_turn = self.__state.get_max_turn()
+        childList = self.__state.get_successors()
+        
+        choice = (None,float("-inf")) if is_max_turn else (None,float("inf"))
+        
+        for c in childList:
+            val = self.alphaBeta(c,alpha,beta)
+            if is_max_turn:
+                if val > choice[1]:
+                    choice = (c,val)
+                    alpha = val
+            else:
+                if val < choice[1]:
+                    choice = (c,val)
+                    beta = val                
+                
+        print("Utility: "+str(choice[1]))
+                
+        return choice[0]
+            
+        
+    def miniMax(self,state,depth=0): 
+        """Gets the utility value of the given state.
+        
+        Args:
+            state (TwoPlayerGameState): The predecessor state.
+            limit (int): The maximum depth the algorithm should explore.
+            depth (int): The current depth.
+            
+        Returns:
+            float: The utility value of the state.
+        
+        """
+        self.__explored[state.get_hashable_state()] = state
+        
+        if state in self.__explored.keys() or state.is_end_state() or depth >= self.__max_depth:
+            return state.get_utility_value() #Return terminal state's utility value
+        
+        is_max_turn = state.get_max_turn()
+        childList = state.get_successors()
+        
+        if is_max_turn:
+            utility = float("-inf")
+            for c in childList:
+                utility = max(utility,self.miniMax(c, depth+1))
+            return utility
+        else:
+            utility = float("inf")
+            for c in childList:
+                utility = min(utility,self.miniMax(c, depth+1))
+            return utility
+        
+    def alphaBeta(self,state,alpha,beta,depth=0):
+        """Gets the utility value of the given state, using alpha-beta pruning.
+        
+        Args:
+            state (TwoPlayerGameState): The predecessor state.
+            alpha (float): The current alpha value.
+            beta (float): The current beta value.
+            limit (int): The maximum depth the algorithm should explore.
+            depth (int): The current depth.
+        Returns:
+            float: The utility value of the state.
+        
+        """
+        self.__explored[state.get_hashable_state()] = state
+        
+        if state.is_end_state() or depth >= self.__max_depth:
+            #Return terminal state's utility value
+            return state.get_utility_value()
+        
+        is_max_turn = state.get_max_turn()
+        childList = state.get_successors()
+        
         if is_max_turn:
             for c in childList:
-                alpha = max(alpha, self.AlphaBeta(c,alpha,beta)) 
+                if c in self.__explored.keys():
+                    continue
+                alpha = max(alpha, self.alphaBeta(c,alpha,beta,depth+1)) 
                 if beta <= alpha:
                     break 
             return alpha
-        else: #Player == MIN 
+        else:
             for c in childList:
-                beta = min(beta, self.AlphaBeta(c,alpha,beta)) 
+                if c in self.__explored.keys():
+                    continue
+                beta = min(beta, self.alphaBeta(c,alpha,beta,depth+1)) 
                 if beta <= alpha:
                     break 
             return beta
-    
-    def __init__(self):
-        pass
         
 class TwoPlayerGameState:
     """A state class. Used to define a two-player game state.

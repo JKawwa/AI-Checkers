@@ -54,10 +54,10 @@ class CheckersState(search_engine.TwoPlayerGameState):
         """
 
         succs = []
-        for piece in self.get_board().get_current_player().get_pieces():
+        for piece in self.__board.get_current_player().get_pieces():
             (x_old, y_old) = piece.get_position().get_coord()
             for (x, y) in piece.get_moves():
-                if self.get_board().is_in_bounds(x, y):
+                if self.__board.is_in_bounds(x, y):
                     
                     new_state = CheckersState(parent=self)
                     
@@ -66,7 +66,7 @@ class CheckersState(search_engine.TwoPlayerGameState):
                     if not new_piece:
                         print("uh oh no new_piece")
                     if new_state.get_board().move(new_piece, (x, y)):
-                        print("move (", chr(ord('A') + (x_old)) ,  y_old + 1, " - ", chr(ord('A') + (x)), y+1, ")", sep="")
+                        #print("move (", chr(ord('A') + (x_old)) ,  y_old + 1, " - ", chr(ord('A') + (x)), y+1, ")", sep="")
                         succs.append(new_state)
         return succs
     
@@ -76,12 +76,12 @@ class CheckersState(search_engine.TwoPlayerGameState):
         Returns:
             hashable: A hashable object.
         """
-        return str(self.get_board())
+        return str(self.__board)
         
     def print_state(self):
         """Prints a string representation of the state.
         """
-        print(self.get_board())
+        self.__board.print_board()
         
     def get_utility_value(self):
         """Provides the utility value of the state.
@@ -89,7 +89,7 @@ class CheckersState(search_engine.TwoPlayerGameState):
         Returns:
             int: The utility value of the state.
         """
-        return self.get_board().get_utility_value()
+        return self.__board.get_utility_value()
     
     def is_end_state(self):
         """Determines if the game has ended.
@@ -97,7 +97,7 @@ class CheckersState(search_engine.TwoPlayerGameState):
         Returns:
             bool: True if game ended. False otherwise.
         """
-        return (self.get_board().get_winner() is not None)
+        return (self.__board.get_winner() is not None)
         
 class Board:
     
@@ -318,7 +318,7 @@ class Board:
                 # can't jump over, so it behaves like a collision
                 return False
             else:
-                print("removing a piece")
+                #print("removing a piece")
                 
                 # kill enemy and jump over
                 dest_piece.get_player().remove_piece(dest_piece)
@@ -494,7 +494,7 @@ class Piece:
             
         .. note:: The value of the piece is 2 if it is a king and 1 otherwise.
         """
-        return 2 if (self.is_king) else 1
+        return 2 if (self.__is_king) else 1
 
     def get_moves(self):
         """
@@ -595,7 +595,7 @@ class CheckersPlayer():
         """
         sum = 0
         for piece in self.__pieces:
-            sum += piece.getValue()
+            sum += piece.get_value()
         return sum
     
 # class HumanPlayer(CheckersPlayer):
