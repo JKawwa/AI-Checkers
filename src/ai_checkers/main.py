@@ -55,7 +55,7 @@ if __name__ == '__main__':
 #     print("Nodes explored: "+str(engine.get_num_explored()))
     
     
-    is_AI_vs_AI = input("Enter game mode number: 1- AI vs. AI \n                      2- Human vs. AI")
+    is_AI_vs_AI = input("Enter game mode number: 1- AI vs. AI \n                        2- Human vs. AI")
     controller2 = search_engine.AIController()
     if is_AI_vs_AI == '1':
         controller1 = search_engine.AIController()
@@ -68,7 +68,6 @@ if __name__ == '__main__':
     state.get_board().print_board()
     
     #for i in range(2):
-    print("AB successors ", 0)
     current_controller = controller1
     while( not state.is_end_state()):
         state = current_controller.play_move(state)

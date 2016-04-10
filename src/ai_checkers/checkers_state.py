@@ -315,7 +315,7 @@ class Board:
         """
         self.__state = state
 
-    def jumpMove(self, piece, coordinate):
+    def jumpMove(self, piece, coordinate, action = None):
         """
         Move the piece past the Position indicated by the coordinate (jump).
         handles collisions
@@ -331,8 +331,6 @@ class Board:
         """
         
         (x, y) = coordinate
-        
-        (x_orig, y_orig) = piece.get_position().get_coord()
         
         if not self.is_in_bounds(x, y):
             raise search_engine.AIError("out of bounds")
@@ -357,6 +355,11 @@ class Board:
                 
                 new_states = []
                 
+                if action is None:
+                    action = chr(ord('A')+(x1))+str(y1+1) + "-" + chr(ord('A')+(x_final))+str(y_final+1)
+                else:
+                    action += "-" + chr(ord('A')+(x_final))+str(y_final+1)
+                self.get_state().set_action(action)
                 # check for double jumps
                 for (x_double, y_double) in piece.get_moves():
                     if self.is_in_bounds(x_double, y_double):
@@ -366,14 +369,17 @@ class Board:
                             new_state = CheckersState(action="", parent=self.__state.get_parent(), board=self)
                             new_piece = new_state.get_board().get_pos(x_final, y_final).get_piece()
                             
-                            next_jump_states = new_state.get_board().jumpMove(new_piece, (x_double, y_double))
+                            next_jump_states = new_state.get_board().jumpMove(new_piece, (x_double, y_double), action = action)
                             new_states.extend( next_jump_states )
                             
                             # quit after first double jump
                             #return True
 
                 #print("jump (", chr(ord('A') + (x_orig)) ,  y_orig + 1, " - ", chr(ord('A') + (x)), y+1, ")", sep="")
-                return new_states if new_states else [self.get_state()]
+                if new_states:
+                    return new_states
+                else:
+                    return [self.get_state()]
         return []
 
     def regMove(self, piece, coordinate):
@@ -396,7 +402,10 @@ class Board:
 
         dest_piece = self.get_pos(x, y).get_piece()
         if  dest_piece == None:
+            (x1, y1) = piece.get_position().get_coord()
             piece.set_position(self.get_pos(x, y))
+            action = chr(ord('A')+(x1))+str(y1+1) + "-" + chr(ord('A')+(x))+str(y+1)
+            self.get_state().set_action(action)
             return True
         elif dest_piece.get_player() == piece.get_player():
             return False # collision
@@ -727,8 +736,8 @@ class CheckersPlayer():
         Returns:
             int: The sum of the player's pieces' values.
         """
-        sum = 0
+        val_sum = 0
         for piece in self.__pieces:
-            sum += piece.get_value()
-        return sum
+            val_sum += piece.get_value()
+        return val_sum
     

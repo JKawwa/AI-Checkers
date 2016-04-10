@@ -91,6 +91,7 @@ class SearchEngine:
         #self.__explored[state.get_hashable_state()] = state
         
         #print("NextState (depth "+str(depth)+"):")
+        #print("Action: "+state.get_action())
         
         if state in self.__explored.keys() or state.is_end_state() or depth >= self.__max_depth:
             return state.get_utility_value() #Return terminal state's utility value
@@ -125,6 +126,7 @@ class SearchEngine:
         #self.__explored[state.get_hashable_state()] = state
         
         #print("NextState (depth "+str(depth)+"):")
+        #print("Action: "+state.get_action())
         
         if state.is_end_state() or depth >= self.__max_depth:
             #Return terminal state's utility value
@@ -226,7 +228,7 @@ class TwoPlayerGameState:
         Args:
             action (str): The state's action.
         """
-        return self.__action
+        self.__action = action
 
 #     def get_current_player(self):
 #         """
@@ -351,7 +353,7 @@ class AIError(Exception):
                    
 class HumanController(Controller):
     def __init__(self):
-        print("NOTE: Moves should be inputed in the form (Current Piece Position - Desired Position), e.g. Enter'(F2-E3)' to move piece F2 to E3\n NOTE: For double moves, use (Current Piece Position - Intermediate Position - Final Position), e.g. Enter'(F2-D4-F6)' to move piece F2 to D4 to F6")
+        print("NOTE: Moves should be inputed in the form (Current Piece Position - Desired Position), \ne.g. Enter'F2-E3' to move piece F2 to E3\nNOTE: For double moves, use (Current Piece Position - Intermediate Position - Final Position), \ne.g. Enter'F2-D4-F6' to move piece F2 to D4 to F6")
         super().__init__(is_ai = True)
          
     def play_move(self,state):
@@ -359,16 +361,19 @@ class HumanController(Controller):
         Returns next state Or None to quit the game'''
         #Keep asking for the next move until a valid move.
         while(True):
-            nextMove = input("What is your next move? e.g. Enter'(F2-E3)'\n Enter 'Quit' to exit")
+            childList = state.get_successors()
+            print("Your possible moves:")
+            for c in childList:
+                print("                     "+c.get_action())
+            nextMove = input("What is your next move? \ne.g.'F2-E3' or 'Quit'\n")
             #Check if the move is valid
             if nextMove == 'Quit':
                 return None
-            childList = self.__state.get_successors()
             for c in childList:
-                if c.get_action == nextMove:
+                if c.get_action() == nextMove:
                     return c
             # Move not possible    
-            print("Invalid move!! Please try again...\n\n")
+            print("Invalid move!! Please try again...\n")
          
 class AIController(Controller):
     """
