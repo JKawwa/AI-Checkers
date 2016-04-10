@@ -82,16 +82,19 @@ class SearchEngine:
         
         choice = (None,float("-inf"))
         
-        for c in childList:
-            val = self.miniMax(c)
-            if ai_config.Config.avoid_stalemate and c.check_path():
-                    val = val + (-1 - val)/2
-            if is_max_turn:
-                if val > choice[1]:
-                    choice = (c,val)
-            else:
-                if val < choice[1]:
-                    choice = (c,val)
+        if(len(childList) == 1):
+            choice = (childList[0],childList[0].get_utility_value())
+        else:
+            for c in childList:
+                val = self.miniMax(c)
+                if ai_config.Config.avoid_stalemate and c.check_path():
+                        val = val + (-1 - val)/2
+                if is_max_turn:
+                    if val > choice[1]:
+                        choice = (c,val)
+                else:
+                    if val < choice[1]:
+                        choice = (c,val)
                 
         self.__num_explored = len(self.__explored.keys())
         self.__explored.clear()
@@ -124,20 +127,23 @@ class SearchEngine:
         
         choice = (None,float("-inf")) if is_max_turn else (None,float("inf"))
         
-        for c in childList:
-            val = self.alphaBeta(c,alpha,beta)
-            if is_max_turn:
-                if ai_config.Config.avoid_stalemate and c.check_path():
-                    val = val + (-1 - val)/2
-                if val > choice[1]:
-                    choice = (c,val)
-                    alpha = val
-            else:
-                if ai_config.Config.avoid_stalemate and c.check_path():
-                    val = val + (1 - val)/2
-                if val < choice[1]:
-                    choice = (c,val)
-                    beta = val                
+        if(len(childList) == 1):
+            choice = (childList[0],childList[0].get_utility_value())
+        else:
+            for c in childList:
+                val = self.alphaBeta(c,alpha,beta)
+                if is_max_turn:
+                    if ai_config.Config.avoid_stalemate and c.check_path():
+                        val = val + (-1 - val)/2
+                    if val > choice[1]:
+                        choice = (c,val)
+                        alpha = val
+                else:
+                    if ai_config.Config.avoid_stalemate and c.check_path():
+                        val = val + (1 - val)/2
+                    if val < choice[1]:
+                        choice = (c,val)
+                        beta = val                
                 
         self.__num_explored = len(self.__explored.keys())
         self.__explored.clear()

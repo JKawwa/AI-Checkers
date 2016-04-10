@@ -17,6 +17,7 @@ class CheckersState(search_engine.TwoPlayerGameState):
     """
     def __init__(self,action="START",parent=None,controller1=None,controller2=None, board=None):
 
+        self.__successors = None
 
         if board:
             super().__init__(action = action, parent = parent,
@@ -49,25 +50,10 @@ class CheckersState(search_engine.TwoPlayerGameState):
         Returns:
             List[TwoPlayerGameState]: The successor states.
         """
-
-        succs = []
-        for piece in self.__board.get_current_player().get_pieces():
-            (x_old, y_old) = piece.get_position().get_coord()
-            for (x, y) in piece.get_moves():
-                if self.__board.is_in_bounds(x, y):
-                    
-                    new_state = CheckersState(parent=self)
-                    
-                    new_piece = new_state.get_board().get_pos(x_old, y_old).get_piece()
-                    
-                    if not new_piece:
-                        print("uh oh no new_piece")
-
-                    jump_succs = new_state.get_board().jumpMove(new_piece, (x, y))
-                    succs.extend(jump_succs)
-            
-        if not succs:
-            #No jumps available. Can move normally now.
+        if self.__successors:
+            return self.__successors
+        else:
+            succs = []
             for piece in self.__board.get_current_player().get_pieces():
                 (x_old, y_old) = piece.get_position().get_coord()
                 for (x, y) in piece.get_moves():
@@ -79,11 +65,29 @@ class CheckersState(search_engine.TwoPlayerGameState):
                         
                         if not new_piece:
                             print("uh oh no new_piece")
+    
+                        jump_succs = new_state.get_board().jumpMove(new_piece, (x, y))
+                        succs.extend(jump_succs)
+                
+            if not succs:
+                #No jumps available. Can move normally now.
+                for piece in self.__board.get_current_player().get_pieces():
+                    (x_old, y_old) = piece.get_position().get_coord()
+                    for (x, y) in piece.get_moves():
+                        if self.__board.is_in_bounds(x, y):
                             
-                        if new_state.get_board().regMove(new_piece, (x, y)):
-                            #print("move (", chr(ord('A') + (x_old)) ,  y_old + 1, " - ", chr(ord('A') + (x)), y+1, ")", sep="")
-                            succs.append(new_state)
-        return succs
+                            new_state = CheckersState(parent=self)
+                            
+                            new_piece = new_state.get_board().get_pos(x_old, y_old).get_piece()
+                            
+                            if not new_piece:
+                                print("uh oh no new_piece")
+                                
+                            if new_state.get_board().regMove(new_piece, (x, y)):
+                                #print("move (", chr(ord('A') + (x_old)) ,  y_old + 1, " - ", chr(ord('A') + (x)), y+1, ")", sep="")
+                                succs.append(new_state)
+            self.__successors = succs
+            return succs
     
     def get_hashable_state(self):
         """Provides a hashable object that uniquely defines the state.
