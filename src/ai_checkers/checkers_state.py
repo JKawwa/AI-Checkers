@@ -596,6 +596,16 @@ class Piece:
         if self.__position:
             self.__position.set_piece(self)
 
+
+        if not self.get_is_king():
+            if self.__direction == self.up:
+                if position.get_coord()[1] == (Board.height - 1):
+                    self.set_king()
+            elif self.__direction == self.down:
+                if position.get_coord()[1] == 0:
+                    self.set_king()               
+            
+
     def get_player(self):
         return self.__player
             
