@@ -174,7 +174,7 @@ class SearchEngine:
         #print("NextState (depth "+str(depth)+"):")
         #print("Action: "+state.get_action())
         
-        if state in self.__explored.keys():
+        if state in self.__explored:
             return self.__explored[state.get_hashable_state()]
         
         if state.is_end_state() or depth >= (self.__max_depth - 1):
@@ -212,7 +212,7 @@ class SearchEngine:
         
         #print("NextState (depth "+str(depth)+"):")
         #print("Action: "+state.get_action())
-        if state in self.__explored.keys():
+        if state in self.__explored:
             return self.__explored[state.get_hashable_state()]
         
         if state.is_end_state() or depth >= (self.__max_depth-1):
@@ -267,10 +267,13 @@ class TwoPlayerGameState:
             # Players get duplicated on each state, and then get connected to the controllers.
             self.__controller1 = parent.__controller1
             self.__controller2 = parent.__controller2
+            self.__path = dict(parent.__path)
+            self.__path[parent.get_hashable_state()] = parent
         else:
             self.__max_turn = True
             self.__controller1 = controller1
             self.__controller2 = controller2
+            self.__path = dict()
         
     def get_controller1(self):
         """Gets the controller who starts first.
@@ -326,12 +329,13 @@ class TwoPlayerGameState:
         Returns:
             bool: True if duplicate on path exists, false otherwise.
         """
-        node = self.get_parent()
-        while node:
-            if node.get_hashable_state() == self.get_hashable_state():
-                return True
-            node = node.get_parent()
-        return False
+        return self.get_hashable_state() in self.__path
+#         node = self.get_parent()
+#         while node:
+#             if node.get_hashable_state() == self.get_hashable_state():
+#                 return True
+#             node = node.get_parent()
+#         return False
 
     def get_successors(self):
         """Generates a list of successors for the state.

@@ -14,6 +14,6 @@ class Config(object):
     #: bool: Pushes AI decisions away from a stale-mate.
     avoid_stalemate = True
     #: int: Determines the depth to use for player 1 if it is an AI.
-    player1_ai_depth = 4
+    player1_ai_depth = 3
     #: int: Determines the depth to use for player 2 if it is an AI.
-    player2_ai_depth = 4
+    player2_ai_depth = 3

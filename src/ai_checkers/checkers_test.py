@@ -28,6 +28,17 @@ class AITestCase(unittest.TestCase):
         self.assertEqual(board.get_player_turn(), True, "Player turn is incorrect")
         self.assertEqual(state.get_max_turn(), True, "Board turn does not match state turn")
         
+    def test_end_state(self):
+        controller1 = search_engine.AIController()
+        controller2 = search_engine.AIController()
+        board = checkers_state.Board(controller1, controller2)
+        state = checkers_state.CheckersState(board=board)
+        self.assertEqual(board.get_winner(),None, "This should not be end state!")
+        pieces = board.get_player1().get_pieces()
+        for piece in pieces:
+            board.get_player1().remove_piece(piece)
+        self.assertEqual(board.get_winner(),board.get_player2(),"Player 2 should be the winner!")
+        
     def test_successors(self):
         controller1 = search_engine.AIController()
         controller2 = search_engine.AIController()
