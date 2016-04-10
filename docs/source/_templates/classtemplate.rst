@@ -5,6 +5,19 @@
 
 .. autoclass:: {{ objname }}
 
+
+   {% block attributes %}
+   {% if attributes %}
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree:
+   {% for item in attributes %}
+      ~{{ name }}.{{ item }}
+   {%- endfor %}
+   {% endif %}
+   {% endblock %}
+
    {% block methods %}
    ..	.. automethod:: __init__
 
@@ -21,14 +34,22 @@
    {% endif %}
    {% endblock %}
 
-   {% block attributes %}
    {% if attributes %}
-   .. rubric:: Attributes
 
-   .. autosummary::
-      :toctree:
    {% for item in attributes %}
-      ~{{ name }}.{{ item }}
+   .. autoattribute:: {{ name }}.{{ item }}
+      :noindex:
    {%- endfor %}
+
    {% endif %}
-   {% endblock %}
+
+   {% if methods %}
+
+   {% for item in methods %}
+   {% if not item == "__init__" %}
+   .. automethod:: {{ name }}.{{ item }}
+      :noindex:
+   {% endif %}
+   {%- endfor %}
+
+   {% endif %}

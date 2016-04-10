@@ -54,9 +54,16 @@ coverage.xml
 
 # Sphinx documentation
 docs/_build/
+docs/source/_autosummary/
 
 # PyBuilder
 target/
 
 #Ipython Notebook
 .ipynb_checkpoints
+
+.pydevproject
+
+.project
+
+.externalToolBuilders/Generate Docs.launch

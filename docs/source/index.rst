@@ -14,8 +14,9 @@ Table of Contents
 	ai_checkers.main
 	ai_checkers.search_engine
 	ai_checkers.checkers_state
+    ai_checkers.ai_config
 
-Module Dumps
+Modules
 ==============
 
 ai_checkers.main
@@ -38,6 +39,14 @@ ai_checkers.checkers_state
 ----------------------------
    
 .. automodule:: ai_checkers.checkers_state
+   :members:
+   :undoc-members:
+   :noindex:
+
+ai_checkers.ai_config
+----------------------------
+   
+.. automodule:: ai_checkers.ai_config
    :members:
    :undoc-members:
    :noindex:

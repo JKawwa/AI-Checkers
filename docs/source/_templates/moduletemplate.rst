@@ -42,4 +42,12 @@
    {% endif %}
    {% endblock %}
 
-..
+   {% if classes %}
+
+   {% for item in classes %}
+   .. autoclass:: {{ name }}.{{ item }}
+      :members:
+      :undoc-members:
+      :noindex:
+   {%- endfor %}
+   {% endif %}
