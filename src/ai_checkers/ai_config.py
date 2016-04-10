@@ -17,3 +17,5 @@ class Config(object):
     player1_ai_depth = 3
     #: int: Determines the depth to use for player 2 if it is an AI.
     player2_ai_depth = 3
+    #: bool: Flag for printing the metrics for the AI at the end of the game.
+    print_metrics = True

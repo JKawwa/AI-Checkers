@@ -50,6 +50,11 @@ def play_game():
     winner = state.get_winner()
     # Game is over
     print((str(winner) + " wins!") if winner else "It's a Tie!")
+    if ai_config.Config.print_metrics and controller1.get_is_ai():
+        print("AI Metrics:")
+        print("Average Time: ".ljust(25)+"{0:.3f}".format(controller1.average_time))
+        print("Average Nodes Explored: ".ljust(25)+"{0:.3f}".format(controller1.average_nodes))
+        print("Number of Moves: ".ljust(25)+str(controller1.moves))
 
 if __name__ == '__main__':
     args = dict([tuple(arg.split('=')) for arg in sys.argv[1:]])

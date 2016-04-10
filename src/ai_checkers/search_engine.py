@@ -65,7 +65,7 @@ class SearchEngine:
         Returns:
             float: The time elapsed, in seconds
         """
-        return self.__num_explored
+        return self.__time_elapsed
     
     def startMiniMax(self):
         """
@@ -501,8 +501,11 @@ class AIController(Controller):
     Utilizes AlphaBeta pruning to determine the next state
     """
     def __init__(self,mode="AlphaBeta",max_depth=5):
-        self.__engine = SearchEngine(mode = mode, max_depth = max_depth)
         super().__init__(is_ai = True)
+        self.__engine = SearchEngine(mode = mode, max_depth = max_depth)
+        self.average_time = 0 #: float: The average time taken to calculate the next step.
+        self.average_nodes = 0  #: float: The average number of nodes explored.
+        self.moves = 0 #: int: The number of moves played by this controller.
          
     def play_move(self,state):
         """"
@@ -512,7 +515,17 @@ class AIController(Controller):
             TwoPlayerGameState: The next state to be played.
         """
         self.__engine.set_state(state)
-        return self.__engine.getNextState()
+        result = self.__engine.getNextState()
+        time_elapsed = self.__engine.get_time_elapsed()
+        num_nodes = self.__engine.get_num_explored()
+        if self.moves == 0:
+            self.average_time = time_elapsed
+            self.average_nodes = num_nodes
+        else:
+            self.average_time = ( (self.average_time * self.moves) + time_elapsed ) / (self.moves+1)
+            self.average_nodes = ( (self.average_nodes * self.moves) + num_nodes ) / (self.moves+1)
+        self.moves += 1
+        return result
     
     def get_engine(self):
         """"
