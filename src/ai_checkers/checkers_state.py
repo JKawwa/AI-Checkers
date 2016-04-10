@@ -134,7 +134,10 @@ class Board:
         if board:
             self.__player1 = CheckersPlayer(board=self,player=board.get_player1())
             self.__player2 = CheckersPlayer(board=self,player=board.get_player2())
-            self.__player_turn = not board.get_player_turn()
+            if not state:
+                self.__player_turn = not board.get_player_turn()
+            else:
+                self.__player_turn = state.get_max_turn()
             self.__board = []
             for y in range(8):
                 row = []
@@ -379,6 +382,7 @@ class Board:
                 if new_states:
                     return new_states
                 else:
+                    self.get_state().get_board().set_player_turn(not self.get_state().get_parent().get_max_turn())
                     return [self.get_state()]
         return []
 
