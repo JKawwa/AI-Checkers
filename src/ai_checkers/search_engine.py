@@ -14,7 +14,8 @@ class SearchEngine:
         self.__max_depth = max_depth
         self.__mode = mode
         self.__explored = dict()
-        self.__explored[state.get_hashable_state()] = state
+        if state:
+            self.__explored[state.get_hashable_state()] = state
         
     def getNextState(self):
         if self.__mode == "AlphaBeta":
@@ -89,7 +90,7 @@ class SearchEngine:
         """
         #self.__explored[state.get_hashable_state()] = state
         
-        print("NextState (depth "+str(depth)+"):")
+        #print("NextState (depth "+str(depth)+"):")
         
         if state in self.__explored.keys() or state.is_end_state() or depth >= self.__max_depth:
             return state.get_utility_value() #Return terminal state's utility value
@@ -123,7 +124,7 @@ class SearchEngine:
         """
         #self.__explored[state.get_hashable_state()] = state
         
-        print("NextState (depth "+str(depth)+"):")
+        #print("NextState (depth "+str(depth)+"):")
         
         if state.is_end_state() or depth >= self.__max_depth:
             #Return terminal state's utility value

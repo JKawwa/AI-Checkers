@@ -64,7 +64,8 @@ class CheckersState(search_engine.TwoPlayerGameState):
                     if not new_piece:
                         print("uh oh no new_piece")
 
-                    succs.extend(new_state.get_board().jumpMove(new_piece, (x, y)))
+                    jump_succs = new_state.get_board().jumpMove(new_piece, (x, y))
+                    succs.extend(jump_succs)
             
         if not succs:
             #No jumps available. Can move normally now.
@@ -81,7 +82,7 @@ class CheckersState(search_engine.TwoPlayerGameState):
                             print("uh oh no new_piece")
                             
                         if new_state.get_board().regMove(new_piece, (x, y)):
-                            print("move (", chr(ord('A') + (x_old)) ,  y_old + 1, " - ", chr(ord('A') + (x)), y+1, ")", sep="")
+                            #print("move (", chr(ord('A') + (x_old)) ,  y_old + 1, " - ", chr(ord('A') + (x)), y+1, ")", sep="")
                             succs.append(new_state)
         return succs
     
@@ -360,16 +361,18 @@ class Board:
                 for (x_double, y_double) in piece.get_moves():
                     if self.is_in_bounds(x_double, y_double):
                         double_piece = self.get_pos(x_double, y_double).get_piece()
-                        if (double_piece != None):
+                        if (double_piece != None and double_piece.get_player() != piece.get_player()):
                             # we may be able to double jump, try it
                             new_state = CheckersState(action="", parent=self.__state.get_parent(), board=self)
-                            next_jump_states = new_state.get_board().jumpMove(piece, (x_double, y_double))
+                            new_piece = new_state.get_board().get_pos(x_final, y_final).get_piece()
+                            
+                            next_jump_states = new_state.get_board().jumpMove(new_piece, (x_double, y_double))
                             new_states.extend( next_jump_states )
                             
                             # quit after first double jump
                             #return True
 
-                print("jump (", chr(ord('A') + (x_orig)) ,  y_orig + 1, " - ", chr(ord('A') + (x)), y+1, ")", sep="")
+                #print("jump (", chr(ord('A') + (x_orig)) ,  y_orig + 1, " - ", chr(ord('A') + (x)), y+1, ")", sep="")
                 return new_states if new_states else [self.get_state()]
         return []
 
