@@ -10,6 +10,7 @@ Example:
 import search_engine
 import checkers_state
 import ai_config
+import sys
 
 def play_game():
     """
@@ -51,6 +52,9 @@ def play_game():
     print((str(winner) + " wins!") if winner else "It's a Tie!")
 
 if __name__ == '__main__':
+    args = dict([tuple(arg.split('=')) for arg in sys.argv[1:]])
+    for (key,val) in args.items():
+        setattr(ai_config.Config,key,eval(val))
     play_game()
 
 #     controller1 = search_engine.Controller(True)
