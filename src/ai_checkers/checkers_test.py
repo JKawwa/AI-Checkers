@@ -1,6 +1,7 @@
 import unittest
 import checkers_state
 import search_engine
+import ai_config
 
 class AITestCase(unittest.TestCase):
     
@@ -16,6 +17,9 @@ class AITestCase(unittest.TestCase):
     
     test_steps1 = ["A3-B4","D6-C5","B4-D6","E7-C5"]
     test_steps2 = ["A3-B4","B6-A5","B2-A3","C7-B6","A1-B2","D8-C7","G3-H4","F6-G5","H4-F6-D8"]
+    
+    test_utility1 = [0, 0, 1/(ai_config.Config.king_value*12), 0]
+    test_utility2 = [0, 0, 0, 0, 0, 0, 0, 0, 3/(ai_config.Config.king_value*12)]
     
     test_minimax1_in = "A3-B4"
     
@@ -78,6 +82,32 @@ class AITestCase(unittest.TestCase):
             
         self.assertTrue(childList is not None)
         self.assertEqual(len(childList),1,"Wrong number of successors!")
+        
+    def test_utility_function1(self):
+        controller1 = search_engine.AIController()
+        controller2 = search_engine.AIController()
+        board = checkers_state.Board(controller1, controller2)
+        state = checkers_state.CheckersState(board=board)
+        childList = None
+        for i,step in enumerate(AITestCase.test_steps1):
+            childList = state.get_successors()
+            for c in childList:
+                if c.get_action() == step:
+                    state = c    
+            self.assertEqual(state.get_utility_value(),AITestCase.test_utility1[i],"Expected successor not found!")
+        
+    def test_utility_function2(self):
+        controller1 = search_engine.AIController()
+        controller2 = search_engine.AIController()
+        board = checkers_state.Board(controller1, controller2)
+        state = checkers_state.CheckersState(board=board)
+        childList = None
+        for i, step in enumerate(AITestCase.test_steps2):
+            childList = state.get_successors()
+            for c in childList:
+                if c.get_action() == step:
+                    state = c    
+            self.assertEqual(state.get_utility_value(),AITestCase.test_utility2[i],"Expected utility value not found!")
         
     def test_minimax1(self):
         controller1 = search_engine.AIController(mode="MiniMax", max_depth=1)
