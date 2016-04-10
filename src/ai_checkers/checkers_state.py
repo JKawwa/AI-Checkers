@@ -183,7 +183,7 @@ class Board:
             self.__player2 = CheckersPlayer(board=self,controller=controller2)
             controller1.set_is_max(True)
             controller2.set_is_max(False)
-            self.__player_turn = self.__player1
+            self.__player_turn = True
             self.__board = []
             for y in range(8):
                 row = []

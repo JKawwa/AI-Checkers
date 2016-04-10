@@ -19,12 +19,12 @@ def play_game():
     print("1 - AI vs. AI")
     print("2 - Human vs. AI")
     print("3 - Human vs. Human")
-    is_AI_vs_AI = input()
-    if is_AI_vs_AI == '1':
+    user_input = input()
+    if user_input == '1':
         controller1 = search_engine.AIController(max_depth=ai_config.Config.player1_ai_depth)
         controller2 = search_engine.AIController(max_depth=ai_config.Config.player2_ai_depth)
-    if is_AI_vs_AI == '1':
-        controller1 = search_engine.AIController(max_depth=ai_config.Config.player1_ai_depth)
+    elif user_input == '2':
+        controller1 = search_engine.HumanController()
         controller2 = search_engine.AIController(max_depth=ai_config.Config.player2_ai_depth)
     else:
         controller1 = search_engine.HumanController()

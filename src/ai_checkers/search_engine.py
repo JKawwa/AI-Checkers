@@ -101,7 +101,7 @@ class SearchEngine:
         self.__time_elapsed = end-start
         
         print("Utility: "+"{0:.3f}".format(choice[1]))
-        print("Nodes Explored: "+self.__num_explored)
+        print("Nodes Explored: "+str(self.__num_explored))
         print("Time Elapsed: "+"{0:.3f} seconds".format(self.__time_elapsed))
         
         return choice[0]
@@ -171,7 +171,7 @@ class SearchEngine:
         if state in self.__explored.keys():
             return self.__explored[state.get_hashable_state()]
         
-        if state.is_end_state() or depth >= self.__max_depth:
+        if state.is_end_state() or depth >= (self.__max_depth - 1):
             self.__explored[state.get_hashable_state()] = state.get_utility_value()
             return state.get_utility_value() #Return terminal state's utility value
         
@@ -209,7 +209,7 @@ class SearchEngine:
         if state in self.__explored.keys():
             return self.__explored[state.get_hashable_state()]
         
-        if state.is_end_state() or depth >= self.__max_depth:
+        if state.is_end_state() or depth >= (self.__max_depth-1):
             #Return terminal state's utility value
             self.__explored[state.get_hashable_state()] = state.get_utility_value()
             return state.get_utility_value()
@@ -503,4 +503,13 @@ class AIController(Controller):
         """
         self.__engine.set_state(state)
         return self.__engine.getNextState()
+    
+    def get_engine(self):
+        """"
+        Gets the :class:`SearchEngine` associated with the AIController.
+            
+        Returns:
+            SearchEngine: The associated search engine.
+        """
+        return self.__engine
 
