@@ -18,8 +18,8 @@ class AITestCase(unittest.TestCase):
     test_steps1 = ["A3-B4","D6-C5","B4-D6","E7-C5"]
     test_steps2 = ["A3-B4","B6-A5","B2-A3","C7-B6","A1-B2","D8-C7","G3-H4","F6-G5","H4-F6-D8"]
     
-    test_utility1 = [0, 0, 1/(ai_config.Config.king_value*12), 0]
-    test_utility2 = [0, 0, 0, 0, 0, 0, 0, 0, 3/(ai_config.Config.king_value*12)]
+    test_utility1 = [0, 0, 1/(ai_config.Config.KING_VAL*12), 0]
+    test_utility2 = [0, 0, 0, 0, 0, 0, 0, 0, 3/(ai_config.Config.KING_VAL*12)]
     
     test_minimax1_in = "A3-B4"
     

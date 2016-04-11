@@ -87,7 +87,7 @@ class SearchEngine:
         else:
             for c in childList:
                 val = self.miniMax(c)
-                if ai_config.Config.avoid_stalemate and c.check_path():
+                if ai_config.Config.AVOID_TIE and c.check_path():
                         val = val + (-1 - val)/2
                 if is_max_turn:
                     if val > choice[1]:
@@ -133,13 +133,13 @@ class SearchEngine:
             for c in childList:
                 val = self.alphaBeta(c,alpha,beta)
                 if is_max_turn:
-                    if ai_config.Config.avoid_stalemate and c.check_path():
+                    if ai_config.Config.AVOID_TIE and c.check_path():
                         val = val + (-1 - val)/2
                     if val > choice[1]:
                         choice = (c,val)
                         alpha = val
                 else:
-                    if ai_config.Config.avoid_stalemate and c.check_path():
+                    if ai_config.Config.AVOID_TIE and c.check_path():
                         val = val + (1 - val)/2
                     if val < choice[1]:
                         choice = (c,val)

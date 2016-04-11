@@ -10,12 +10,16 @@ class Config(object):
     """
     
     #: int: The value of a promoted piece.
-    king_value = 2
+    KING_VAL = 2
     #: bool: Pushes AI decisions away from a stale-mate.
-    avoid_stalemate = True
+    AVOID_TIE= True
     #: int: Determines the depth to use for player 1 if it is an AI.
-    player1_ai_depth = 3
+    P1_DEPTH = 2
     #: int: Determines the depth to use for player 2 if it is an AI.
-    player2_ai_depth = 3
+    P2_DEPTH = 2
+    #: str: Determines the algorithm to use for player 1 if it is an AI.
+    P1_ALG = "MiniMax"
+    #: int: Determines the algorithm to use for player 2 if it is an AI.
+    P2_ALG = "AlphaBeta"
     #: bool: Flag for printing the metrics for the AI at the end of the game.
-    print_metrics = True
+    PRINT_METRICS = True

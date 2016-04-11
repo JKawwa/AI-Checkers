@@ -275,7 +275,7 @@ class Board:
         elif self.get_winner() == self.__player2:
             return float(-1)
         else:
-            return float(self.__player1.get_value() - self.__player2.get_value())/(ai_config.Config.king_value*12)
+            return float(self.__player1.get_value() - self.__player2.get_value())/(ai_config.Config.KING_VAL*12)
         
     def get_winner(self):
         """
@@ -683,7 +683,7 @@ class Piece:
         .. note:: The value of the piece is 2 if it is a king and 1 otherwise.
         .. note:: The value of the king piece can be modified from :attr:`.Config.king_value`.
         """
-        return ai_config.Config.king_value if (self.__is_king) else 1
+        return ai_config.Config.KING_VAL if (self.__is_king) else 1
 
     def get_moves(self):
         """

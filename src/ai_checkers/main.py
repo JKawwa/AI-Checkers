@@ -22,11 +22,11 @@ def play_game():
     print("3 - Human vs. Human")
     user_input = input()
     if user_input == '1':
-        controller1 = search_engine.AIController(max_depth=ai_config.Config.player1_ai_depth)
-        controller2 = search_engine.AIController(max_depth=ai_config.Config.player2_ai_depth)
+        controller1 = search_engine.AIController(mode=ai_config.Config.P1_ALG,max_depth=ai_config.Config.P1_DEPTH)
+        controller2 = search_engine.AIController(mode=ai_config.Config.P2_ALG,max_depth=ai_config.Config.P2_DEPTH)
     elif user_input == '2':
         controller1 = search_engine.HumanController()
-        controller2 = search_engine.AIController(max_depth=ai_config.Config.player2_ai_depth)
+        controller2 = search_engine.AIController(mode=ai_config.Config.P2_ALG,max_depth=ai_config.Config.P2_DEPTH)
     else:
         controller1 = search_engine.HumanController()
         controller2 = search_engine.HumanController()
@@ -50,7 +50,7 @@ def play_game():
     winner = state.get_winner()
     # Game is over
     print((str(winner) + " wins!") if winner else "It's a Tie!")
-    if ai_config.Config.print_metrics and controller1.get_is_ai():
+    if ai_config.Config.PRINT_METRICS and controller1.get_is_ai():
         print("AI Metrics:")
         print("Average Time: ".ljust(25)+"{0:.3f}".format(controller1.average_time))
         print("Average Nodes Explored: ".ljust(25)+"{0:.3f}".format(controller1.average_nodes))
