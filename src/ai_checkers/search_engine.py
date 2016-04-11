@@ -80,7 +80,10 @@ class SearchEngine:
         is_max_turn = self.__state.get_max_turn()
         childList = self.__state.get_successors()
         
-        choice = (None,float("-inf"))
+        if is_max_turn:
+            choice = (None,float("-inf"))
+        else:
+            choice = (None,float("inf"))
         
         if(len(childList) == 1):
             choice = (childList[0],childList[0].get_utility_value())
